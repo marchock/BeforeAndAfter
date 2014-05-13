@@ -1,0 +1,4 @@
+showHideSlider
+==============
+
+Jquery Slider
