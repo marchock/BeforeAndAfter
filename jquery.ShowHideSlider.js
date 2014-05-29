@@ -1,7 +1,7 @@
 // the semi-colon before function invocation is a safety net against concatenated
 // scripts and/or other plugins which may not be closed properly.
 
-/*global window, document*/
+/*global window, document, setTimeout, clearTimeout, navigator, jQuery */
 
 ;(function ($, window, document, undefined) {
 
@@ -37,12 +37,6 @@
 
     Plugin.prototype = {
         init: function () {
-            // Place initialization logic here
-            // You already have access to the DOM element and
-            // the options via the instance, e.g. this.element
-            // and this.settings
-            // you can add more functions like the one below and
-            // call them like so: this.yourOtherFunction(this.element, this.settings).
 
             this.sliderControls = {
                 start: false,
@@ -141,7 +135,7 @@
              * user tap interaction
              * if a user drags finger then it is not a tap
              */
-            if ((this.yTracking-5) < y || (this.yTracking + 5) > y) {
+            if ((this.yTracking - 5) < y || (this.yTracking + 5) > y) {
                 this.userTap = false;
             }
 
@@ -166,10 +160,10 @@
             }
         },
 
-        newPosition: function (e) {
+        newPosition: function () {
 
             var l = this.xTracking / (this.sliderControls.sWidth / 100);
-            this.newLeft = l
+            this.newLeft = l;
             this.v = Math.abs(this.leftPosition - l) / 10;
 
             if (this.leftPosition < this.newLeft) {
@@ -190,12 +184,11 @@
                     me.leftPosition = me.leftPosition + me.v;
                     me.updateElements(me.leftPosition);
                     me.animateRight();
-                }, 30)
+                }, 30);
 
             } else {
                 this.leftPosition = this.newLeft;
             }
-
         },
 
         animateLeft: function () {
@@ -208,12 +201,11 @@
                     me.leftPosition = me.leftPosition - me.v;
                     me.updateElements(me.leftPosition);
                     me.animateLeft();
-                }, 30)
+                }, 30);
 
             } else {
                 this.leftPosition = this.newLeft;
             }
-
         },
 
         updateElements: function (num) {
@@ -236,13 +228,12 @@
             this.sliderControls.sWidth = num;
         },
 
-        setupEvents: function (num) {
-            var me = this;
-
-            var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
-            var start = isMobile ? "touchstart" : "mousedown";
-            var move = isMobile ? "touchmove" : "mousemove";
-            var end = isMobile ? "touchend" : "mouseup";
+        setupEvents: function () {
+            var me = this,
+                isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent),
+                start = isMobile ? "touchstart" : "mousedown",
+                move = isMobile ? "touchmove" : "mousemove",
+                end = isMobile ? "touchend" : "mouseup";
 
             /**
              * Event mouse down || touch start
@@ -283,7 +274,7 @@
     // preventing against multiple instantiations
     $.fn[pluginName] = function (options) {
         this.each(function() {
-            if ( !$.data(this, "plugin_" + pluginName)) {
+            if (!$.data(this, "plugin_" + pluginName)) {
                 $.data(this, "plugin_" + pluginName, new Plugin(this, options));
             }
         });
@@ -292,4 +283,4 @@
         return this;
     };
 
-})( jQuery, window, document );
+})(jQuery, window, document);
