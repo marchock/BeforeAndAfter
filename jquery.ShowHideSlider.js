@@ -43,64 +43,191 @@
             // and this.settings
             // you can add more functions like the one below and
             // call them like so: this.yourOtherFunction(this.element, this.settings).
-            var me = this;
 
             this.sliderControls = {
                 start: false,
                 sWidth: 0
             };
 
+            // start position on first load
+            this.leftPosition = 50;
+
+
             this.dragElement = $(this.element).find(".slider-button");
             this.bottomImage = $(this.element).find("img")[1];
             this.mask = $(this.element).find(".slider");
-
-            this.resizeImage($(window).width());
+            this.copy = $(this.element).find(".slider-copy");
 
             this.setupEvents();
-
+            this.resizeImageOnFirstLoad();
         },
 
+        /**
+         * Event mouse down || touch start
+         *
+         * 
+         */
         eventStart: function (e) {
+
             var id = e.target.getAttribute("class");
 
-            switch(id) {
+            switch (id) {
+
             case "slider-button":
+                /* MOBILE FIX
+                 *
+                 * prevent browser from scrolling up or down when 
+                 * user is dragging left to right.
+                 */
+                e.preventDefault();
+
+                // if user interaction in on "slider-button" then interact
                 this.sliderControls.start = true;
                 break;
+
             case "drag-area":
-                this.newPosition(e);
+
+                /* 
+                 * DESKTOP - e.clientX
+                 *
+                 * MOBILE - e.originalEvent.touches[0].clientX
+                 *
+                 * get x or y coordinates when user interacts with interface
+                 */
+                this.yTracking = e.clientY || e.originalEvent.touches[0].clientY;
+                this.xTracking  = e.clientX || e.originalEvent.touches[0].clientX;
+
+                /* MOBILE FIX
+                 * user tap interaction 
+                 */
+                this.userTap = true;
                 break;
             }
-            
         },
 
         eventMove: function (e) {
+
+            /* 
+             * DESKTOP - e.clientX
+             *
+             * MOBILE - e.originalEvent.touches[0].clientX
+             *
+             * get x or y coordinates when user interacts with interface
+             */
+            var x = e.clientX || e.originalEvent.touches[0].clientX,
+                y = e.clientY || e.originalEvent.touches[0].clientY,
+                l;
+
             if (this.sliderControls.start) {
-                console.log("MOUSE || TOUCH  ---- MOVE", e.clientX)
 
-                var l = e.clientX / (this.sliderControls.sWidth / 100) ;
+                /* MOBILE FIX
+                 *
+                 * prevent browser from scrolling up or down when 
+                 * user is dragging left to right.
+                 */
+                e.preventDefault();
 
-                console.log("left", l)
+                // calculate the percentage
+                l = x / (this.sliderControls.sWidth / 100);
 
+                // update elements position
+                this.updateElements(l);
 
-                this.dragElement[0].style.left = l + "%";
-                this.mask[0].style.width = l + "%";
+                // keep track of the current position
+                this.leftPosition = l;
             }
+
+            /* MOBILE FIX
+             * user tap interaction
+             * if a user drags finger then it is not a tap
+             */
+            if ((this.yTracking-5) < y || (this.yTracking + 5) > y) {
+                this.userTap = false;
+            }
+
+            this.showHideMessage(this.leftPosition);
         },
 
         eventEnd: function (e) {
-            console.log("MOUSE || TOUCH  ---- END")
+
             this.sliderControls.start = false;
+
+            if (this.userTap) {
+                this.newPosition(e);
+            }
+
+        },
+
+        showHideMessage: function (num) {
+            if (num > 45 && num < 55) {
+                this.copy.removeClass("hide");
+            } else {
+                this.copy.addClass("hide");
+            }
         },
 
         newPosition: function (e) {
-            console.log(e)
-            var l = e.clientX / (this.sliderControls.sWidth / 100) ;
 
-            console.log(this.dragElement, this.mask)
-            this.dragElement.animate({ "left": l + "%" }, 300 );
-            this.mask.animate({ "width": l + "%" }, 300 );
+            var l = this.xTracking / (this.sliderControls.sWidth / 100);
+            this.newLeft = l
+            this.v = Math.abs(this.leftPosition - l) / 10;
+
+            if (this.leftPosition < this.newLeft) {
+                this.animateRight();
+            } else {
+                this.animateLeft();
+            }
+
         },
+
+        animateRight: function () {
+            clearTimeout(this.animationTimer);
+            var me = this;
+
+            if (this.leftPosition <= this.newLeft) {
+
+                this.animationTimer = setTimeout(function () {
+                    me.leftPosition = me.leftPosition + me.v;
+                    me.updateElements(me.leftPosition);
+                    me.animateRight();
+                }, 30)
+
+            } else {
+                this.leftPosition = this.newLeft;
+            }
+
+        },
+
+        animateLeft: function () {
+            clearTimeout(this.animationTimer);
+            var me = this;
+
+            if (this.leftPosition >= this.newLeft) {
+
+                this.animationTimer = setTimeout(function () {
+                    me.leftPosition = me.leftPosition - me.v;
+                    me.updateElements(me.leftPosition);
+                    me.animateLeft();
+                }, 30)
+
+            } else {
+                this.leftPosition = this.newLeft;
+            }
+
+        },
+
+        updateElements: function (num) {
+            this.dragElement[0].style.left = num + "%";
+            this.mask[0].style.width = num + "%";
+        },
+
+        resizeImageOnFirstLoad: function () {
+            var me = this;
+            setTimeout(function () {
+                me.resizeImage($(window).width());
+            }, 200);
+        },
+
 
         resizeImage: function (num) {
             this.bottomImage.width = num;
@@ -110,7 +237,7 @@
         },
 
         setupEvents: function (num) {
-            var me = this; 
+            var me = this;
 
             var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
             var start = isMobile ? "touchstart" : "mousedown";
@@ -146,23 +273,23 @@
              * Event resize
              *
              */
-            $( window ).resize(function() {
-                me.resizeImage($(window).width())
+            $(window).resize(function() {
+                me.resizeImage($(window).width());
             });
         }
     };
 
     // A really lightweight plugin wrapper around the constructor,
     // preventing against multiple instantiations
-    $.fn[ pluginName ] = function ( options ) {
-            this.each(function() {
-                    if ( !$.data( this, "plugin_" + pluginName ) ) {
-                            $.data( this, "plugin_" + pluginName, new Plugin( this, options ) );
-                    }
-            });
+    $.fn[pluginName] = function (options) {
+        this.each(function() {
+            if ( !$.data(this, "plugin_" + pluginName)) {
+                $.data(this, "plugin_" + pluginName, new Plugin(this, options));
+            }
+        });
 
-            // chain jQuery functions
-            return this;
+        // chain jQuery functions
+        return this;
     };
 
 })( jQuery, window, document );
