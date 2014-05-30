@@ -2,172 +2,67 @@
 <html>
 	<head>
 	<meta charset="UTF-8">
-	<title>Title of the document</title>
-
-	
+	<title>Show & Hide Picture</title>
 	</head>
 
 	<link rel="stylesheet" type="text/css" href="http://necolas.github.io/normalize.css/3.0.1/normalize.css">
-
-	<style>
-
-	/**
-	 * Custom Resets
-	 */
-	 p, pre, blockquote, a, ul, ol, li, h1, h2, h3, h4, h5, h6 {
-	    margin:0;
-	    padding:0;
-	}
-
-		#shs-one,
-		#shs-two {
-			position: relative;
-			display: block;
-			height: 100%;
-			margin-bottom: 100px;
-		}
-
-
-		.top-image,
-		.slider {
-			position: absolute;
-			top: 0px;
-			left: 0px;
-
-			-webkit-touch-callout: none;
-			-webkit-user-select: none;
-			-khtml-user-select: none;
-			-moz-user-select: none;
-			-ms-user-select: none;
-			user-select: none;
-		}
-
-		.top-image,
-		.bottom-image {
-			-webkit-touch-callout: none;
-			-webkit-user-select: none;
-			-khtml-user-select: none;
-			-moz-user-select: none;
-			-ms-user-select: none;
-			user-select: none;
-		}
-
-		.slider {
-			width: 50%;
-			overflow: hidden;
-			-webkit-transform: translate3d(0, 0, 0);
-		}
-
-		.drag-area {
-			width: 100%;
-			height: 100%;
-			position: absolute;
-			top: 0px;
-			left: 0px;
-
-			/* ie8 fix
-			 *
-			 * tapping on the drag-area without a background colour assigned
-			 * will select the element below 
-			 */
-			background-color: blue;
-			opacity: 0;
-			-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
-		}
-
-		.slider-button {
-			width: 100px;
-			height: 100px;
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			background-color: red;
-			z-index: 1;
-			margin: -50px 0 0 -50px;
-		}
-
-		.slider-copy {
-			opacity: 1;
-		}
-
-		.slider-copy.hide {
-			opacity: 0;
-			-webkit-transition: opacity 1s;
-		}
-
-		.copy-1,
-		.copy-2 {
-			position: absolute;
-			top: 38%;
-			z-index: 3;
-			font-size: 36px;
-			color:#FFFFFF;
-			width: 50%;
-			text-align: center;
-			pointer-events: none;
-
-			-webkit-touch-callout: none;
-			-webkit-user-select: none;
-			-khtml-user-select: none;
-			-moz-user-select: none;
-			-ms-user-select: none;
-			user-select: none;
-		}
-
-		.copy-1 {left: 0%;}
-		.copy-2 {right: 0%;}
-
-	</style>
-
-			
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	
 	<body>
 
-		<div id="shs-one" class="show">
-			<img class="top-image" src="img/old.jpeg" width="100%"/>
+		<div id="shs-one" class="show-hide-slider">
+			<img class="top-image user-select-none" src="img/old.jpeg" width="100%"/>
 			<div class="slider">
-				<img id="bottom-image" class="bottom-image" src="img/new.jpeg" width="100%"/>
+				<img id="bottom-image" class="bottom-image user-select-none" src="img/new.jpeg" width="100%"/>
 			</div>
-			<div class="slider-copy copy-1">COPY GOES HERE</div>
-			<div class="slider-copy copy-2">COPY GOES HERE</div>
+			<div class="slider-copy copy-1 user-select-none">
+				<div class="table">
+					<div class="table-cell"><p>COPY GOES HERE</p></div>
+				</div>
+			</div>
+			<div class="slider-copy copy-2 user-select-none">
+				<div class="table">
+					<div class="table-cell"><p>COPY GOES HERE</p></div>
+				</div>
+			</div>
 			<div class="drag-area"></div>
 			<div class="slider-button"></div>
 		</div>
 
-		<div id="shs-two" class="">
-			<img class="top-image" src="img/old.jpeg" width="100%"/>
+		<div id="shs-two" class="show-hide-slider">
+			<img class="top-image user-select-none" src="img/old.jpeg" width="100%"/>
 			<div class="slider">
-				<img id="bottom-image" class="bottom-image" src="img/new.jpeg" width="100%"/>
+				<img id="bottom-image" class="bottom-image user-select-none" src="img/new.jpeg" width="100%"/>
 			</div>
-			<div class="slider-copy copy-1">COPY GOES HERE 222222</div>
-			<div class="slider-copy copy-2">COPY GOES HERE 2222</div>
+			<div class="slider-copy copy-1 user-select-none">
+				<div class="table">
+					<div class="table-cell"><p>COPY GOES HERE</p></div>
+				</div>
+			</div>
+			<div class="slider-copy copy-2 user-select-none">
+				<div class="table">
+					<div class="table-cell"><p>COPY GOES HERE</p></div>
+				</div>
+			</div>
 			<div class="drag-area"></div>
 			<div class="slider-button"></div>
 		</div>
 
-
-
-
-
+		<!-- JAVASCRIPT  -->
 		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 		<script src="jquery.ShowHideSlider.js"></script>
 
 		<script type="text/javascript">
-
 			$( document ).ready(function() {
 
 				$("#shs-one").ShowHideSlider({
-    				propertyName: "a custom value"
+    				propertyName: ""
 				});
 
 				$("#shs-two").ShowHideSlider({
-    				propertyName: "a custom value"
+    				propertyName: ""
 				});
-  			
-
 			});
-
 		</script>
-
 	</body>
-
 </html>

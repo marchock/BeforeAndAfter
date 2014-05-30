@@ -1,20 +1,28 @@
-// the semi-colon before function invocation is a safety net against concatenated
-// scripts and/or other plugins which may not be closed properly.
+// ****************************************************************************
+// ****************************************************************************
+
+//http://codepen.io/ace/pen/BqEer
+
+
+// animate slider back to centre when user is not interacting 
+
+// option to move slider with hover state
+
+// option to click and show image clicked on or animate to the position selected 
+
+// create event triggers 
+
+
+// ****************************************************************************
+// ****************************************************************************
+
+
 
 /*global window, document, setTimeout, clearTimeout, navigator, jQuery */
 
 ;(function ($, window, document, undefined) {
 
     "use strict";
-
-    // undefined is used here as the undefined global variable in ECMAScript 3 is
-    // mutable (ie. it can be changed by someone else). undefined isn't really being
-    // passed in so we can ensure the value of it is truly undefined. In ES5, undefined
-    // can no longer be modified.
-
-    // window and document are passed through as local variable rather than global
-    // as this (slightly) quickens the resolution process and can be more efficiently
-    // minified (especially when both are regularly referenced in your plugin).
 
     // Create the defaults once
     var pluginName = "ShowHideSlider",
@@ -25,10 +33,6 @@
     // The actual plugin constructor
     function Plugin(element, options) {
         this.element = element;
-        // jQuery has an extend method which merges the contents of two or
-        // more objects, storing the result in the first object. The first object
-        // is generally empty as we don't want to alter the default options for
-        // future instances of the plugin
         this.settings = $.extend({}, defaults, options);
         this._defaults = defaults;
         this._name = pluginName;
@@ -39,13 +43,14 @@
         init: function () {
 
             this.sliderControls = {
-                start: false,
-                sWidth: 0
+                btnSS: false, // button slider selected
+                ww: 0,      // window width
+                ad: "left", // animation direction
+                pp: 50, // position percentage
+                newPP: 0, // new position percentage
+                spX: 0, // start position X
+                spY: 0 // start position Y
             };
-
-            // start position on first load
-            this.leftPosition = 50;
-
 
             this.dragElement = $(this.element).find(".slider-button");
             this.bottomImage = $(this.element).find("img")[1];
@@ -75,8 +80,7 @@
                  */
                 e.preventDefault();
 
-                // if user interaction in on "slider-button" then interact
-                this.sliderControls.start = true;
+                this.sliderControls.btnSS = true;
                 break;
 
             case "drag-area":
@@ -88,8 +92,8 @@
                  *
                  * get x or y coordinates when user interacts with interface
                  */
-                this.yTracking = e.clientY || e.originalEvent.touches[0].clientY;
-                this.xTracking  = e.clientX || e.originalEvent.touches[0].clientX;
+                this.sliderControls.spY = e.clientY || e.originalEvent.touches[0].clientY;
+                this.sliderControls.spX  = e.clientX || e.originalEvent.touches[0].clientX;
 
                 /* MOBILE FIX
                  * user tap interaction 
@@ -99,6 +103,11 @@
             }
         },
 
+        /**
+         * Event mouse move || touch move
+         *
+         * 
+         */
         eventMove: function (e) {
 
             /* 
@@ -112,7 +121,7 @@
                 y = e.clientY || e.originalEvent.touches[0].clientY,
                 l;
 
-            if (this.sliderControls.start) {
+            if (this.sliderControls.btnSS) {
 
                 /* MOBILE FIX
                  *
@@ -122,37 +131,46 @@
                 e.preventDefault();
 
                 // calculate the percentage
-                l = x / (this.sliderControls.sWidth / 100);
+                l = x / (this.sliderControls.ww / 100);
 
                 // update elements position
                 this.updateElements(l);
 
                 // keep track of the current position
-                this.leftPosition = l;
+                this.sliderControls.pp = l;
             }
 
             /* MOBILE FIX
              * user tap interaction
              * if a user drags finger then it is not a tap
              */
-            if ((this.yTracking - 5) < y || (this.yTracking + 5) > y) {
+            if ((this.sliderControls.spY - 20) < y || (this.sliderControls.spY + 20) > y) {
                 this.userTap = false;
             }
 
-            this.showHideMessage(this.leftPosition);
+            this.showHideMessage(this.sliderControls.pp);
         },
 
+
+        /**
+         * Event mouse up || touch end
+         *
+         * 
+         */
         eventEnd: function (e) {
 
-            this.sliderControls.start = false;
+            this.sliderControls.btnSS = false;
 
             if (this.userTap) {
                 this.newPosition(e);
             }
-
         },
 
+        /*
+         * Show and hide message at a specified position 
+         */
         showHideMessage: function (num) {
+            // if position is between 45 to 55 percent then show message
             if (num > 45 && num < 55) {
                 this.copy.removeClass("hide");
             } else {
@@ -160,54 +178,98 @@
             }
         },
 
+        /*
+         * Find new position for slider to animate to
+         */
         newPosition: function () {
+            // calculate new position 
+            this.sliderControls.newPP = this.sliderControls.spX / (this.sliderControls.ww / 100);
 
-            var l = this.xTracking / (this.sliderControls.sWidth / 100);
-            this.newLeft = l;
-            this.v = Math.abs(this.leftPosition - l) / 10;
+            this.v = Math.abs(this.sliderControls.pp - this.sliderControls.newPP) / 10;
 
-            if (this.leftPosition < this.newLeft) {
-                this.animateRight();
-            } else {
-                this.animateLeft();
-            }
+            // find which direction to animate
+            this.sliderControls.ad = this.findDirection();
+            this.animate();
 
         },
 
-        animateRight: function () {
+        /*
+         * Find which direction to animate slider
+         */
+        findDirection: function () {
+            var d = "";
+            if (this.sliderControls.pp < this.sliderControls.newPP) {
+                d = "right";
+            } else {
+                d = "left";
+            }
+            return d;
+        },
+
+        /*
+         * animate slider
+         * 
+         * loop until slider reaches new percentage value
+         */
+        animate: function () {
             clearTimeout(this.animationTimer);
             var me = this;
 
-            if (this.leftPosition <= this.newLeft) {
+            if (this.isAnimationComleted()) {
 
                 this.animationTimer = setTimeout(function () {
-                    me.leftPosition = me.leftPosition + me.v;
-                    me.updateElements(me.leftPosition);
-                    me.animateRight();
+                    me.sliderControls.pp = me.calPosition(me.sliderControls.ad);
+                    me.updateElements(me.sliderControls.pp);
+                    me.animate();
                 }, 30);
 
             } else {
-                this.leftPosition = this.newLeft;
+                this.sliderControls.pp = this.sliderControls.newPP;
             }
         },
 
-        animateLeft: function () {
-            clearTimeout(this.animationTimer);
-            var me = this;
+        /*
+         * If slider position is equal to new value then animation is 
+         * completed
+         *
+         * return -  true or false
+         */
+        isAnimationComleted: function () {
+            var b = false
 
-            if (this.leftPosition >= this.newLeft) {
+            if (this.sliderControls.ad === "right") {
+                if (this.sliderControls.pp <= this.sliderControls.newPP) {
+                    b = true;
+                }
 
-                this.animationTimer = setTimeout(function () {
-                    me.leftPosition = me.leftPosition - me.v;
-                    me.updateElements(me.leftPosition);
-                    me.animateLeft();
-                }, 30);
-
-            } else {
-                this.leftPosition = this.newLeft;
+            } else { // left
+                
+                if (this.sliderControls.pp >= this.sliderControls.newPP) {
+                    b = true;
+                }
             }
+            return b;
         },
 
+        /*
+         * Calculate slider position 
+         */
+        calPosition: function (direction) {
+            var v;
+            if (direction === "right") {
+
+                v = this.sliderControls.pp + this.v;
+
+            } else { // left
+                
+                v = this.sliderControls.pp - this.v;
+            }
+            return v
+        },
+
+        /*
+         * Update elements position 
+         */
         updateElements: function (num) {
             this.dragElement[0].style.left = num + "%";
             this.mask[0].style.width = num + "%";
@@ -220,14 +282,19 @@
             }, 200);
         },
 
-
+        /*
+         * Resize elements when widow is resized 
+         */
         resizeImage: function (num) {
             this.bottomImage.width = num;
             this.element.style.width = num + "px";
             this.element.style.height = this.bottomImage.height + "px";
-            this.sliderControls.sWidth = num;
+            this.sliderControls.ww = num;
         },
 
+        /*
+         * Set-up events on first load 
+         */
         setupEvents: function () {
             var me = this,
                 isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent),
