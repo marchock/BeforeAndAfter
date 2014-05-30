@@ -2,7 +2,7 @@
 <html>
 	<head>
 	<meta charset="UTF-8">
-	<title>Show & Hide Picture</title>
+	<title>BEFORE AND AFTER RESPONSIVE</title>
 	</head>
 
 	<link rel="stylesheet" type="text/css" href="http://necolas.github.io/normalize.css/3.0.1/normalize.css">
@@ -10,7 +10,7 @@
 	
 	<body>
 
-		<div id="shs-one" class="show-hide-slider">
+		<div id="ba-one" class="before-and-after">
 			<img class="top-image user-select-none" src="img/old.jpeg" width="100%"/>
 			<div class="slider">
 				<img id="bottom-image" class="bottom-image user-select-none" src="img/new.jpeg" width="100%"/>
@@ -29,7 +29,7 @@
 			<div class="slider-button"></div>
 		</div>
 
-		<div id="shs-two" class="show-hide-slider">
+		<div id="ba-two" class="before-and-after">
 			<img class="top-image user-select-none" src="img/old.jpeg" width="100%"/>
 			<div class="slider">
 				<img id="bottom-image" class="bottom-image user-select-none" src="img/new.jpeg" width="100%"/>
@@ -50,16 +50,16 @@
 
 		<!-- JAVASCRIPT  -->
 		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
-		<script src="jquery.ShowHideSlider.js"></script>
+		<script src="jquery.BeforeAndAfter.js"></script>
 
 		<script type="text/javascript">
 			$( document ).ready(function() {
 
-				$("#shs-one").ShowHideSlider({
+				$("#ba-one").BeforeAndAfter({
     				propertyName: ""
 				});
 
-				$("#shs-two").ShowHideSlider({
+				$("#ba-two").BeforeAndAfter({
     				propertyName: ""
 				});
 			});

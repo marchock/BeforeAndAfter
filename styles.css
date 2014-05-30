@@ -6,14 +6,14 @@ p, pre, blockquote, a, ul, ol, li, h1, h2, h3, h4, h5, h6 {
 	padding:0;
 }
 
-.show-hide-slider {
+.before-and-after {
 	position: relative;
 	display: block;
 	height: 100%;
 	margin-bottom: 100px;
 }
 
-.show-hide-slider:hover .drag-area {
+.before-and-after:hover .drag-area {
 	opacity: 0;
 	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
 }

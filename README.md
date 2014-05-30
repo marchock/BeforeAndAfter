@@ -1,4 +1,4 @@
-showHideSlider
+BeforeAndAfter
 ==============
 
-Jquery Slider
+Jquery Before And After
